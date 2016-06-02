@@ -25,7 +25,7 @@ class XdmItem;
  */
 class XPathProcessor {
 public:
-
+	
     //! Default constructor.
     /*!
       Creates a Saxon-HE XPath product
@@ -60,7 +60,7 @@ public:
 	@return XdmValue
    */
    XdmValue * evaluate(const char * xpathStr);
-
+   
 
     //! Compile and evaluate an XPath expression. The result is expected to be a single XdmItem
    /**
@@ -104,7 +104,7 @@ public:
 
 
     /**
-     * Set a property specific to the processor in use.
+     * Set a property specific to the processor in use. 
      * XPathProcessor: set serialization properties (names start with '!' i.e. name "!method" -> "xml")
      * 'o':outfile name, 's': context item supplied as file name
      * @param name of the property
@@ -132,7 +132,7 @@ public:
      std::map<std::string,XdmValue*>& getParameters();
 
      /**
-      * Get all properties as a std::map
+      * Get all properties as a std::map 
      */
      std::map<std::string,std::string>& getProperties();
 
@@ -175,7 +175,7 @@ public:
      //! Get the ith error message if there are any error
     /**
      * A transformation may have a number of errors reported against it.
-     * @return char* - The message of the i'th exception
+     * @return char* - The message of the i'th exception 
     */
     const char * getErrorMessage(int i);
 
@@ -183,7 +183,7 @@ public:
      //! Get the ith error code if there are any error
     /**
      * After the execution of the XPath expression there may be  a number of errors reported against it.
-     * @return char* - The error code of the i'th exception.
+     * @return char* - The error code of the i'th exception. 
     */
     const char * getErrorCode(int i);
 

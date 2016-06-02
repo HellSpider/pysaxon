@@ -53,8 +53,8 @@ public:
     //!Set the source document from a XdmValue for the transformation.
      /**
 	* @param value - The source to the stylesheet as a pointer to the XdmItem object.
-	*/
-    void setSourceFromXdmValue(XdmItem * value);
+	*/	
+    void setSourceFromXdmValue(XdmItem * value); 
 
     /**
      * Set the source from file for the transformation.
@@ -91,7 +91,7 @@ public:
     bool removeParameter(const char* name);
 
     /**
-     * Set a property specific to the processor in use.
+     * Set a property specific to the processor in use. 
      * XsltProcessor: set serialization properties (names start with '!' i.e. name "!method" -> "xml")
      * 'o':outfile name, 'it': initial template, 'im': initial mode, 's': source as file name
      * 'm': switch on message listener for xsl:message instructions (TODO: this feature should be event based), 'item'| 'node' : source supplied as an XdmNode object
@@ -109,16 +109,16 @@ public:
 
 	//! Get all parameters as a std::map
      /**
-      *
+      * 
       * Please note that the key name has been prefixed with 'param:', for example 'param:name'
-      * @return std:map with key as string name mapped to XdmValue.
-      *
+      * @return std:map with key as string name mapped to XdmValue. 
+      * 
      */
      std::map<std::string,XdmValue*>& getParameters();
 
 	//! Get all properties as a std::map
      /**
-      *
+      *  
       * @return std:map with key as string name mapped to string values.
      */
      std::map<std::string,std::string>& getProperties();
@@ -149,7 +149,7 @@ public:
      * @param stylesheetfile - The file name of the stylesheet document. If NULL the most recently compiled stylesheet is used
      * @param outputfile - The file name where results will be stored
      */
-    void transformFileToFile(const char* sourcefile, const char* stylesheetfile, const char* outputfile);
+    void transformFileToFile(const char* sourcefile, const char* stylesheetfile, const char* outputfile); 
 
 	//!Perform a one shot transformation.
     /**
@@ -180,7 +180,7 @@ public:
 
      //!compile a stylesheet received as a string.
     /**
-     *
+     * 
      * The compiled stylesheet is cached and available for execution later.
      * @param stylesheet as a lexical string representation
      */
@@ -255,14 +255,14 @@ public:
      //! Get the ith error message if there are any error
     /**
      * A transformation may have a number of errors reported against it.
-     * @return char* - The message of the i'th exception
+     * @return char* - The message of the i'th exception 
     */
     const char * getErrorMessage(int i);
 
      //! Get the ith error code if there are any error
     /**
      * A transformation may have a number of errors reported against it.
-     * @return char* - The error code of the i'th exception. The error code are related to the specific specification
+     * @return char* - The error code of the i'th exception. The error code are related to the specific specification 
     */
     const char * getErrorCode(int i);
 

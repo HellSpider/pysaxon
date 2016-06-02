@@ -6,31 +6,63 @@ jobject cpp;
 * If the SAXONC_HOME sxnc_environmental variable is set then use that as base.
 */
 void setDllname(){
-	if(getenv("SAXONC_HOME")!= NULL) {
+	size_t name_len  = strlen(tempDllname);
+	size_t rDir_len  = strlen(tempResources_dir);
+	char * env = getenv("SAXONC_HOME");
+	size_t env_len;
+	if(env!= NULL) {
 
-		char * env = getenv("SAXONC_HOME");
-		size_t env_len = strlen(env);
-		size_t name_len =  15;
-		size_t rDir_len = 11;
-		//dllname =malloc(sizeof(char)*name_len);
-		//resources_dir =malloc(sizeof(char)*rDir_len);
+		
+		env_len = strlen(env);
+		dllname =malloc(sizeof(char)*name_len+env_len+1);
+		resources_dir =malloc(sizeof(char)*rDir_len+env_len+1);
+		snprintf(dllname, env_len+name_len+1, "%s%s", env, tempDllname);
+		snprintf(resources_dir, env_len+rDir_len+1, "%s%s", env, tempResources_dir);
+		
+#ifdef DEBUG	
+		
+		printf("envDir: %s\n", env);
+		
+		
+#endif
+
+       } else {
+		env_len = 8;
+		dllname =malloc(sizeof(char)*name_len+env_len+1);
+		resources_dir =malloc(sizeof(char)*rDir_len+env_len+1);
+#ifdef DEBUG
+		if(dllname == NULL || resources_dir == NULL)
+		{
+    		  // error
+		  printf("Error in allocation of Dllname\n");
+		}
+#endif
 		memset(&dllname[0], 0, sizeof(dllname));
 		memset(&resources_dir[0], 0, sizeof(resources_dir));
-		strncat(resources_dir, env,  env_len);
-		strncat(resources_dir, "/saxon-data", rDir_len);
-		strncat(dllname, env, env_len);
-		strncat(dllname, "/libsaxonhec.so", name_len); //rename according to product edition (-hec or -pec)
-#ifdef DEBUG	
-		printf("resources_dir: %s\n", resources_dir);	
-		printf("envDir: %s\n", env);
-		printf("size of env %i\n", strlen(env));
-		printf("size of dllname %i\n", strlen(dllname));
-		printf("dllName: %s\n", dllname);
-		printf("resources_dir: %s\n", resources_dir);
+#ifdef __linux__
+		
+       		snprintf(dllname, 8+name_len+1, "%s%s", "/usr/lib", tempDllname);
+		snprintf(resources_dir, 8+rDir_len+1, "%s%s", "/usr/lib", tempResources_dir);
+#elif  defined (__APPLE__) && defined(__MACH__)
+       		snprintf(dllname, 8+name_len+1, "%s%s", "/usr/lib", tempDllname);
+		snprintf(resources_dir, 8+rDir_len+1, "%s%s", "/usr/lib", tempResources_dir);
+#else
+		//TODO When windows version of Saxon/C is done we will have to fixup this
+		strncpy(dllname, "C:\\Program Files\\Saxonica\\SaxonHEC1.0.1", 42);
+		strncpy(resources_dir, "C:\\Program Files\\Saxonica\\SaxonHEC1.0.1", 42);
 #endif
+
+	
+
 	}
+		
+
 #ifdef DEBUG	
-		printf("resources_dir: %s\n", resources_dir);	
+
+		printf("Library length: %i\n", name_len);
+		printf("Env length: %i\n", env_len);
+		printf("dllname length alloc: %i\n", (env_len+name_len+1));
+		printf("resources length alloc: %i\n", (env_len+rDir_len+1));		
 		printf("size of dllname %i\n", strlen(dllname));
 		printf("dllName: %s\n", dllname);
 		printf("resources_dir: %s\n", resources_dir);
@@ -41,6 +73,10 @@ void setDllname(){
 
 char * getDllname(){
 	return dllname;
+}
+
+char * getResourceDirectory(){
+	return resources_dir;
 }
 
 /*
@@ -70,12 +106,12 @@ HANDLE loadDll(char* name)
 #endif
 
     if (!hDll) {
-        printf ("Unable to load %s\n", name);
+        fprintf (stderr, "Unable to load %s\n", name);
 	perror("Error: ");
         exit(1);
     }
 #ifdef DEBUG
-    printf ("%s loaded\n", name);
+    fprintf (stderr, "%s loaded\n", name);
 #endif
 
     return hDll;
@@ -98,7 +134,11 @@ void initDefaultJavaRT(sxnc_environment ** env){
  */
 void initJavaRT(HANDLE myDllHandle, JavaVM** pjvm, JNIEnv** penv)
 {
-    //perror ("initJavaRT - load Saxon/C library\n");
+if(jvmCreated==0) {
+     jvmCreated=1;
+#ifdef DEBUG
+    perror ("initJavaRT - load Saxon/C library\n");
+#endif
     int result;
     JavaVMInitArgs args;
     JNI_GetDefaultJavaVMInitArgs_func =
@@ -108,6 +148,7 @@ void initJavaRT(HANDLE myDllHandle, JavaVM** pjvm, JNIEnv** penv)
 #else
     GetProcAddress (myDllHandle, "JNI_GetDefaultJavaVMInitArgs");
 #endif
+ 
     
     JNI_CreateJavaVM_func =
     (jint (JNICALL *) (JavaVM **pvm, void **penv, void *args))
@@ -118,14 +159,15 @@ void initJavaRT(HANDLE myDllHandle, JavaVM** pjvm, JNIEnv** penv)
     GetProcAddress (myDllHandle, "JNI_CreateJavaVM");
     
 #endif
+
     
     if(!JNI_GetDefaultJavaVMInitArgs_func) {
-        printf ("%s doesn't contain public JNI_GetDefaultJavaVMInitArgs\n", getDllname());
+        fprintf (stderr,"%s doesn't contain public JNI_GetDefaultJavaVMInitArgs\n", getDllname());
         exit (1);
     }
     
     if(!JNI_CreateJavaVM_func) {
-        printf ("%s doesn't contain public JNI_CreateJavaVM\n", getDllname());
+        fprintf (stderr,"%s doesn't contain public JNI_CreateJavaVM\n", getDllname());
         exit (1);
     }
     
@@ -134,24 +176,27 @@ void initJavaRT(HANDLE myDllHandle, JavaVM** pjvm, JNIEnv** penv)
     args.version = JNI_VERSION_1_2;
     result = JNI_GetDefaultJavaVMInitArgs_func(&args);
     if (result != JNI_OK) {
-        printf("JNI_GetDefaultJavaVMInitArgs() failed with result\n");
+        fprintf(stderr,"JNI_GetDefaultJavaVMInitArgs() failed with result\n");
         exit(1);
-    }  
+    }
+  
     /*
      * NOTE: no JVM is actually created
      * this call to JNI_CreateJavaVM is intended for JET RT initialization
      */
     result = JNI_CreateJavaVM_func (pjvm, (void **)penv, &args);
     if (result != JNI_OK) {
-        printf("JNI_CreateJavaVM() failed with result\n");
+        fprintf(stderr,"JNI_CreateJavaVM() failed with result: %i\n",result);
         exit(1);
     }
 
-#ifdef DEBUG
-    printf ("JET RT initialized\n");
 
-#endif
     fflush (stdout);
+  } else {
+#ifdef DEBUG
+    perror ("initJavaRT - Saxon/C library loaded already\n");
+#endif
+	}
 }
 
 
@@ -363,10 +408,10 @@ const char * checkForException(sxnc_environment environ, jclass callingClass,  j
 void finalizeJavaRT (JavaVM* jvm)
 {
 
-  if(!jvm){
-	  printf("\njvm is null\n");	
+  if(jvmCreated!= 0){
+    (*jvm)->DestroyJavaVM (jvm);
+    jvmCreated=0;	
   }
-  (*jvm)->DestroyJavaVM (jvm);
 }
 
 

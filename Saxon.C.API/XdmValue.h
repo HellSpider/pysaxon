@@ -40,13 +40,15 @@ public:
 	XdmValue(){
 		xdmSize = 0;
 		refCount = 1;
-		jValues = NULL;		
+		jValues = NULL;
+		valueType = NULL;
 	}
 
 	XdmValue(SaxonProcessor * p){
 		proc = p;
 		jValues = NULL;
 		refCount = 1;
+		valueType = NULL;
 	}
 
 
@@ -180,7 +182,7 @@ public:
 
 protected:
 	SaxonProcessor *proc;
-	char* valueType = NULL;  /*!< Cached. The type of the XdmValue */
+	char* valueType;  /*!< Cached. The type of the XdmValue */
 	//string valueStr;  /*!< Cached. String representation of the XdmValue, if available */
 
 	std::vector<XdmItem*> values;
