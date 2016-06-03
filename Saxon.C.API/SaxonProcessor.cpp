@@ -185,6 +185,11 @@ SaxonProcessor::SaxonProcessor(bool l){
 }
 
 SaxonProcessor::SaxonProcessor(const char * configFile){
+
+    std::cout<<"C++: In SaxonProcessor::SaxonProcessor(configFile)"<<std::endl;
+    std::cout<<"C++: environ = "<<environ<<std::endl;
+    std::cout<<"C++: configFile = "<<configFile<<std::endl;
+
     cwd="";
     versionStr = NULL;
     refCount++;
