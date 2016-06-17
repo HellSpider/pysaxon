@@ -17,5 +17,4 @@ def test_single(sxnproc, xpathproc):
     assert isinstance(item, pysaxon.xdm.Item)
     assert item.size == 1
     assert not item.isAtomic
-    print(item.getStringValue(sxnproc))
-    # print(sxnproc.getStringValue(item))
+    assert item.getStringValue(sxnproc) == b'<person>text1</person>'
